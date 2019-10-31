@@ -1,3 +1,5 @@
+//import { type } from "os"
+
 const fi = (function() {
   return {
     libraryMethod: function() {
@@ -6,30 +8,48 @@ const fi = (function() {
 
     each: function(collection, callback) {
       if (typeof collection === 'object'){
-        //If collection is a JavaScript object, callback's arguments will be (value, key, collection).
-        //then, return original collection
-        const keys = Object.keys(collection)
-        const values = Object.values(collection)
-        for (let i = 0; i < collection.length; i++){
-          callback(values[i], keys[i], collection)
-          return collection;
+        for (const key in collection){
+          callback(collection[key])
         }
       } else {
-        for(let i = 0; i < collection.length; i++){
-          //Each invocation of callback is called with three arguments: (element, index, collection). 
-          //then, return original collection
-          callback(collection[i], i, collection)
-          return collection;
+        for (const element of collection){
+          callback(element)
         }
       }
+      return collection;
     },
 
-    map: function() {
-
+    map: function(collection, callback) {
+      if (typeof collection != "object") {
+        let newArray = []        
+        collection.forEach(element => {
+            newArray.push(callback(element))
+        })
+        return newArray
+    } else {
+        // if it's an object:
+        let newArray = [];
+        for (const key in collection) {
+            newArray.push(callback(collection[key]))
+        }
+        return newArray;
+    }
     },
 
-    reduce: function() {
+    reduce: function(collection, callback, acc) {
+      let newArray = [...collection];
+      let accumulator
+      if (acc) {
+        accumulator = acc
+      } else {
+        accumulator = collection[0]
+        newArray.shift();
+      }
 
+      newArray.forEach(memo => {
+        accumulator = callback(accumulator, memo)
+      })
+      return accumulator;
     },
 
     functions: function() {
@@ -112,6 +132,63 @@ const fi = (function() {
      }
    }
    return unique; 
+  },
+
+  compact: function(array){
+    let newArray = [];
+    for(let i = 0; i < array.length; i++){
+      if (array[i]){
+        newArray.push(array[i])
+      }
+    }
+    return newArray;
+  },
+
+  filter: function(collection, predicate){
+    let newArray = [];
+    collection.forEach(element => {
+      if (predicate(element) === true){
+        newArray.push(element)
+      }
+    })
+    return newArray;
+  },
+
+  sortBy: function(collection, callback) {
+    const newArr = [...collection]
+    return newArr.sort(function(x, y) {
+      return callback(x) - callback(y)
+    })
+  },
+
+  flatten: function(collection, shallow, newArr=[]) {
+    if (!Array.isArray(collection)) return newArr.push(collection)
+    if (shallow) {
+      for (let val of collection)
+        Array.isArray(val) ? this.unpack(newArr, val) : newArr.push(val)
+    } else {
+      for (let val of collection) {
+        this.flatten(val, false, newArr)
+      }
+    }
+    return newArr
+  },
+
+  unpack: function(arr1, arr2){
+    arr2.forEach(element => {
+      arr1.push(element)
+    })
+    return arr1;
+  },
+
+  functions: function(object){
+    const functionsArr = [];
+    for (const key in object) {
+      if (typeof object[key] === 'function'){
+        functionsArr.push(key)
+      }
+    }
+    return functionsArr;
   }
 
 
