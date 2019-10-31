@@ -96,15 +96,27 @@ const fi = (function() {
   },
 
   uniq: function(array, isSorted = false, callback){
-    if (isSorted){
-
-    } else {
-      for(let i =0; i < array.length; i++){
-        
-      }
-    }
+  let unique = [];
+   if (!callback){
+     for (let i = 0; i < array.length; i++){
+       if (!unique.includes(array[i])){
+         unique.push(array[i])
+       }
+     }
+   } else {
+     for(let i = 0; i < array.length; i++){
+       let fnResult = callback(array[i]);
+       if (!unique.includes(fnResult)) {
+         unique.push(fnResult)
+       }
+     }
+   }
+   return unique; 
   }
 
-}})()
+
+  }
+
+})()
 
 fi.libraryMethod()
