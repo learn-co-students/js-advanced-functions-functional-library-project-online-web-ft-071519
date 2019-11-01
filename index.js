@@ -128,36 +128,50 @@ const fi = (function() {
           return newArray
       },
 
-      flatten: function(array, shallow) {
-        const flat = [];
+      flatten: function(array, shallow, flat = []) {
+
           if (shallow === true) {
-              for (const element in array) {
+              for (const element of array) {
+                  if (Array.isArray(element)) {
+                      for(const sub of element) {
+                          flat.push(sub)
+                      }
+                  } else {
+                      flat.push(element)
+                  }
+
+              }
+          } else {
+              for (const element of array) {
+                  if (Array.isArray(element)) {
+                      this.flatten(element, false, flat)
+                  } else {
+                      flat.push(element)
+                  }
               }
           }
         return flat
       },
 
       uniq: function(array, isSorted, callback) {
-          if (isSorted === true) {
-              for (const element in array) {
-                  if (array[element] === array[element - 1]) {
-                      array.splice(element, 1)
-                  }
-              }
-          }
-
-          if (callback) {
+          const newArray = [];
+          if (isSorted === false) {
               array.sort(function (a, b) {
-                  return callback(a) - callback(b)
-              });
-
-              for (const element in array) {
-                  if (callback(array[element]) === callback(array[element - 1])) {
-                      array.splice(element, 1)
-                  }
-              }
-              return array
+                  return a - b
+              })
           }
+        for (const element of array) {
+            if (callback) {
+                if (!newArray.find(e => callback(e) === callback(element))) {
+                    newArray.push(element)
+                }
+            } else {
+                if (!newArray.find(e => e === element)) {
+                    newArray.push(element)
+                }
+            }
+        }
+      return newArray
       },
 
     // Object Functions
@@ -189,6 +203,6 @@ const fi = (function() {
 
 
   }
-})()
+})();
 
-fi.libraryMethod()
+fi.libraryMethod();
